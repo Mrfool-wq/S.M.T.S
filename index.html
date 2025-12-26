@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>S.M.T.S. | Outlaw Economy</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Rye&family=Goudy+Bookletter+1911&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            /* RDR 2 INSPIRED PALETTE (Warmer, Calmer) */
+            --bg-dark: #0f0f0f;
+            --rdr-red: #c22e2e;      /* Softer Dead Eye Red */
+            --paper: #dccfb8;        /* Aged Paper */
+            --ink: #2b2b2b;          /* Dark Ink */
+            --ui-white: #e8e8e8;     
+            --nav-height: 65px;
+            
+            --font-head: 'Rye', serif;
+            --font-body: 'Goudy Bookletter 1911', serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            background-color: var(--bg-dark);
+            /* Soft Texture */
+            background-image: url('https://www.transparenttextures.com/patterns/black-felt.png');
+            color: var(--ui-white);
+            font-family: var(--font-body);
+            font-size: 1.15rem;
+            padding-top: 70px; 
+            padding-bottom: 90px;
+            min-height: 100vh;
+        }
+
+        /* --- CAMPFIRE EMBER ANIMATION --- */
+        #ember-canvas {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* --- HEADER --- */
+        .app-header {
+            position: fixed;
+            top: 0; left: 0; width: 100%;
+            height: 60px;
+            background: rgba(10, 10, 10, 0.95);
+            border-bottom: 2px solid #4a0e0e; /* Darker red border */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.6);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-family: var(--font-head);
+            font-size: 1.3rem;
+            color: var(--ui-white);
+            letter-spacing: 2px;
+        }
+
+        .brand img {
+            width: 38px;
+            height: 38px;
+            border-radius: 4px;
+            sepia: 0.4;
+            border: 1px solid #666;
+        }
+
+        /* --- HERO SECTION (CALM) --- */
+        .hero { text-align: center; margin: 40px 0 50px; }
+
+        .rdr-title {
+            font-family: var(--font-head);
+            font-size: 3rem;
+            color: var(--rdr-red);
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+            letter-spacing: 2px;
+            /* No glitch, just a smooth fade in */
+            animation: fadeDown 1s ease-out;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: #b0b0b0;
+            max-width: 650px;
+            margin: 0 auto 25px;
+            line-height: 1.6;
+            animation: fadeIn 1.5s ease-out;
+        }
+
+        /* --- SIMULATION NOTICE (Paper Style) --- */
+        .disclaimer-box {
+            display: inline-block;
+            background: url('https://www.transparenttextures.com/patterns/paper.png') var(--paper);
+            color: var(--ink);
+            padding: 10px 25px;
+            margin-bottom: 30px;
+            border-radius: 2px;
+            font-size: 1rem;
+            border: 1px solid #888;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            transform: rotate(-1deg);
+        }
+        
+        .disclaimer-box i { color: #8a0000; margin-right: 5px; }
+
+        /* --- BUTTONS --- */
+        .btn-group { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; }
+        
+        .btn {
+            padding: 12px 35px;
+            text-decoration: none;
+            font-family: var(--font-head);
+            font-size: 1rem;
+            letter-spacing: 1px;
+            border: 1px solid var(--ui-white);
+            color: var(--ui-white);
+            background: rgba(0,0,0,0.3);
+            transition: 0.3s;
+            border-radius: 2px;
+        }
+
+        .btn-primary {
+            background: var(--rdr-red);
+            border-color: var(--rdr-red);
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(194, 46, 46, 0.3);
+        }
+        
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.5); }
+
+        /* --- CARDS (JOURNAL STYLE) --- */
+        .card {
+            background-color: var(--paper);
+            background-image: url('https://www.transparenttextures.com/patterns/paper.png');
+            color: var(--ink);
+            padding: 25px;
+            margin-bottom: 25px;
+            border-radius: 2px;
+            box-shadow: 5px 5px 20px rgba(0,0,0,0.4);
+            position: relative;
+            border: 1px solid #a89f81;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+            border-bottom: 1px solid rgba(0,0,0,0.15);
+            padding-bottom: 8px;
+        }
+
+        .card-icon { font-size: 1.4rem; color: #8a0000; }
+        .card h3 { font-family: var(--font-head); font-size: 1.3rem; margin: 0; }
+        .card p { font-size: 1.1rem; line-height: 1.4; }
+
+        /* --- COMMANDS LIST --- */
+        .search-container { 
+            position: sticky; top: 60px; z-index: 10; 
+            background: var(--bg-dark); padding: 15px 0;
+            border-bottom: 1px solid #222;
+        }
+        
+        .search-input {
+            width: 100%;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid #444;
+            color: var(--ui-white);
+            padding: 12px;
+            font-family: var(--font-head);
+            font-size: 1rem;
+            outline: none;
+            border-radius: 4px;
+        }
+        .search-input:focus { border-color: var(--rdr-red); }
+
+        .cmd-item {
+            background: rgba(255, 255, 255, 0.03);
+            border-left: 3px solid #555;
+            padding: 15px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .cmd-item:hover { background: rgba(255, 255, 255, 0.07); border-left-color: var(--rdr-red); }
+
+        .cmd-header { display: flex; justify-content: space-between; align-items: center; }
+        .cmd-title { font-family: var(--font-head); font-size: 1.1rem; color: #ddd; }
+        .cmd-alias { color: #777; font-size: 0.9rem; margin-left: 8px; font-style: italic; }
+        
+        .cmd-body { 
+            max-height: 0; overflow: hidden; transition: max-height 0.3s ease; 
+            color: #aaa; font-size: 1rem; padding-top: 0;
+        }
+
+        .code-box {
+            display: block; background: #151515; color: #d4a373;
+            padding: 8px; margin-top: 8px; font-family: monospace; border: 1px solid #333;
+            font-size: 0.9rem;
+        }
+
+        /* --- FOOTER --- */
+        .footer {
+            text-align: center; color: #555; font-family: var(--font-head);
+            font-size: 0.9rem; margin-top: 40px; padding-top: 20px;
+            border-top: 1px solid #222;
+        }
+
+        /* --- BOTTOM NAV --- */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0; left: 0; width: 100%;
+            height: var(--nav-height);
+            background: #080808;
+            border-top: 1px solid #333;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 1000;
+            padding-bottom: env(safe-area-inset-bottom);
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.8);
+        }
+
+        .nav-item {
+            background: none; border: none; color: #666;
+            font-size: 1.3rem; cursor: pointer;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            width: 100%; height: 100%; transition: 0.3s;
+        }
+
+        .nav-item:hover { color: #aaa; }
+        .nav-item.active { color: var(--rdr-red); transform: translateY(-3px); }
+
+        /* --- ANIMATIONS --- */
+        .tab-content { display: none; animation: fadeIn 0.5s ease; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes fadeDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* --- PAGE CONTAINER --- */
+        .page-container { max-width: 850px; margin: 0 auto; padding: 0 20px; }
+
+        @media (min-width: 768px) {
+            .bottom-nav { justify-content: center; gap: 60px; }
+            .nav-item { width: auto; }
+            .rdr-title { font-size: 4rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="ember-canvas"></canvas>
+
+    <header class="app-header">
+        <div class="brand">
+            <img src="logo.jpg" alt="Logo">
+            <span>S.M.T.S.</span>
+        </div>
+    </header>
+
+    <div class="page-container">
+        
+        <section id="home" class="tab-content active">
+            <div class="hero">
+                <h1 class="rdr-title">WELCOME TRAVELLER</h1>
+                
+                <p>The #1 Stock Market Simulation for Discord. Trade assets, form corporations, and heist the central bank.</p>
+                
+                <div class="disclaimer-box">
+                    <i class="fas fa-info-circle"></i>
+                    This is a simulation. No real money involved.
+                </div>
+
+                <div class="btn-group">
+                    <a href="https://discord.com/oauth2/authorize?client_id=1447459573094023305&permissions=388112&integration_type=0&scope=bot+applications.commands" class="btn btn-primary" target="_blank">
+                        Invite Bot
+                    </a>
+                    <a href="https://discord.gg/tyNxVGQfR" class="btn" target="_blank">
+                        Support Camp
+                    </a>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-chart-line card-icon"></i>
+                    <h3>Stock Exchange</h3>
+                </div>
+                <p>Buy shares cheap, sell 'em high. Watch live charts and keep your eyes on the ticker.</p>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-building card-icon"></i>
+                    <h3>Corporations</h3>
+                </div>
+                <p>Hire hands, pool your money, and put your name on the global leaderboard.</p>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-robot card-icon"></i>
+                    <h3>Automation</h3>
+                </div>
+                <p>Set Limit Orders. Let the system trade for you while you're out riding.</p>
+            </div>
+        </section>
+
+        <section id="commands" class="tab-content">
+            <div class="search-container">
+                <input type="text" class="search-input" id="cmdSearch" placeholder="SEARCH LEDGER..." onkeyup="filterCmds()">
+            </div>
+
+            <div class="cmd-list">
+                
+                <div class="cmd-item" data-key="buy trade purchase">
+                    <div class="cmd-header" onclick="toggleDetails(this)">
+                        <div><span class="cmd-title">/buy</span> <span class="cmd-alias">(b)</span></div>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="cmd-body"><br>Purchase stocks.<br><span class="code-box">/buy [sym] [amt]</span></div>
+                </div>
+
+                <div class="cmd-item" data-key="sell trade liquidate">
+                    <div class="cmd-header" onclick="toggleDetails(this)">
+                        <div><span class="cmd-title">/sell</span> <span class="cmd-alias">(s)</span></div>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="cmd-body"><br>Liquidate assets.<br><span class="code-box">/sell [sym] [amt]</span></div>
+                </div>
+
+                <div class="cmd-item" data-key="short cover trade">
+                    <div class="cmd-header" onclick="toggleDetails(this)">
+                        <div><span class="cmd-title">/short & /cover</span> <span class="cmd-alias">(sh) (cv)</span></div>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="cmd-body"><br>Short selling logic.<br><span class="code-box">/short [sym] [amt]</span></div>
+                </div>
+
+                <div class="cmd-item" data-key="market ticker price">
+                    <div class="cmd-header" onclick="toggleDetails(this)">
+                        <div><span class="cmd-title">/market</span> <span class="cmd-alias">(m)</span></div>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="cmd-body"><br>Live price board.<br><span class="code-box">/market</span></div>
+                </div>
+
+                <div class="cmd-item" data-key="graph chart history">
+                    <div class="cmd-header" onclick="toggleDetails(this)">
+                        <div><span class="cmd-title">/graph</span> <span class="cmd-alias">(g)</span></div>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="cmd-body"><br>Price history chart.<br><span class="code-box">/graph [sym]</span></div>
+                </div>
+
+                <div class="cmd-item" data-key="news info">
+                    <div class="cmd-header" onclick="toggleDetails(this)">
+                        <div><span class="cmd-title">/news</span> <span class="cmd-alias">(n)</span></div>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="cmd-body"><br>Financial News Feed.<br><span class="code-box">/news</span></div>
+                </div>
+
+                <div class="cmd-item" data-key="topgainers best winners">
+                    <div class="cmd-header" onclick="toggleDetails(this)">
+                        <div><span class="cmd-title">/topgainers</span> <span class="cmd-alias">(tg)</span></div>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="cmd-body"><br>Best performers.<br><span class="code-box">/topgainers</span></div>
+                </div>
+
+                <div class="cmd-item" data-key="sectors industry">
+                    <div class="cmd-header" onclick="toggleDetails(this)">
+                        <div><span class="cmd-title">/sectors</span> <span class="cmd-alias">(sec)</span></div>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="cmd-body"><br>Industry list.<br><span class="code-box">/sectors</span></div>
+                </div>
+
+                <div class="cmd-item" data-key="setticker admin channel">
+                    <div class="cmd-header" onclick="toggleDetails(this)">
+                        <div><span class="cmd-title">/setticker</span> <span class="cmd-alias">(st)</span></div>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="cmd-body"><br>Set live market board (Admin).<br><span class="code-box">/setticker</span></div>
+                </div>
+
+                <div class="cmd-item" data-key="heist rob crime">
+                    <div class="cmd-header" onclick="toggleDetails(this)">
+                        <div><span class="cmd-title">/heist</span></div>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="cmd-body"><br>Rob the bank. High risk.<br><span class="code-box">s!heist</span></div>
+                </div>
+                
+                 <div class="cmd-item" data-key="daily reward">
+                    <div class="cmd-header" onclick="toggleDetails(this)">
+                        <div><span class="cmd-title">/daily</span></div>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="cmd-body"><br>Collect your daily earnings.<br><span class="code-box">s!daily</span></div>
+                </div>
+
+                <div class="cmd-item" data-key="profile inventory">
+                    <div class="cmd-header" onclick="toggleDetails(this)">
+                        <div><span class="cmd-title">/profile</span></div>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="cmd-body"><br>Check net worth & inventory.<br><span class="code-box">s!profile</span></div>
+                </div>
+            </div>
+        </section>
+
+        <section id="faq" class="tab-content">
+            <h2 class="rdr-title" style="font-size: 2rem; text-align: center; margin-bottom: 30px;">Help Journal</h2>
+            
+            <div class="card">
+                <h3>How to earn cash?</h3>
+                <p>Start with <code>/daily</code>. Once you have a stake, play the market or buy a factory.</p>
+            </div>
+            <div class="card">
+                <h3>What are Firms?</h3>
+                <p>Player-owned gangs. Costs $5,000 to register. Invite your posse and pool your funds.</p>
+            </div>
+             <div class="card">
+                <h3>Lost Money?</h3>
+                <p>Did you fail a heist? Did the market crash? That's life in the west, partner.</p>
+            </div>
+        </section>
+
+        <section id="rules" class="tab-content">
+            <h2 class="rdr-title" style="font-size: 2rem; text-align: center; margin-bottom: 30px;">The Law</h2>
+            
+            <div class="card">
+                <h3>I. No Alts</h3>
+                <p>Using alternate accounts to farm rewards will get you banned.</p>
+            </div>
+            <div class="card">
+                <h3>II. No Bots</h3>
+                <p>Automated scripts and macros are prohibited.</p>
+            </div>
+            <div class="card">
+                <h3>III. Respect</h3>
+                <p>Keep it civil. No harassment over trades.</p>
+            </div>
+        </section>
+
+        <div class="footer">
+            &copy; 2025 S.M.T.S. All Rights Reserved.
+        </div>
+        
+    </div>
+
+    <nav class="bottom-nav">
+        <button class="nav-item active" onclick="switchTab('home')">
+            <i class="fas fa-home"></i>
+        </button>
+        <button class="nav-item" onclick="switchTab('commands')">
+            <i class="fas fa-book"></i>
+        </button>
+        <button class="nav-item" onclick="switchTab('faq')">
+            <i class="fas fa-question-circle"></i>
+        </button>
+        <button class="nav-item" onclick="switchTab('rules')">
+            <i class="fas fa-balance-scale"></i>
+        </button>
+    </nav>
+
+    <script>
+        // --- CALM EMBER ANIMATION ---
+        const canvas = document.getElementById('ember-canvas');
+        const ctx = canvas.getContext('2d');
+        let width, height;
+        let particles = [];
+
+        function resize() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+            initParticles();
+        }
+
+        function initParticles() {
+            particles = [];
+            // Reduced count and speed for "Calm" effect
+            for(let i=0; i<45; i++) {
+                particles.push({
+                    x: Math.random() * width,
+                    y: Math.random() * height,
+                    size: Math.random() * 2 + 0.5,
+                    speedY: Math.random() * 0.3 + 0.1, // Slower
+                    color: `rgba(204, 80, 20, ${Math.random() * 0.4 + 0.1})` 
+                });
+            }
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, width, height);
+            
+            particles.forEach(p => {
+                ctx.fillStyle = p.color;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fill();
+                
+                p.y -= p.speedY; 
+                p.x += Math.sin(p.y * 0.005) * 0.3; // Gentle sway
+                
+                if(p.y < 0) {
+                    p.y = height;
+                    p.x = Math.random() * width;
+                }
+            });
+            requestAnimationFrame(draw);
+        }
+
+        window.addEventListener('resize', resize);
+        resize();
+        draw();
+
+        // --- TABS ---
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+            window.scrollTo(0,0);
+        }
+
+        // --- ACCORDION ---
+        function toggleDetails(header) {
+            const body = header.nextElementSibling;
+            const icon = header.querySelector('.fa-chevron-down');
+            
+            if (body.style.maxHeight) {
+                body.style.maxHeight = null;
+                icon.style.transform = "rotate(0deg)";
+            } else {
+                body.style.maxHeight = body.scrollHeight + "px";
+                icon.style.transform = "rotate(180deg)";
+            }
+        }
+
+        // --- SEARCH ---
+        function filterCmds() {
+            const val = document.getElementById('cmdSearch').value.toLowerCase();
+            document.querySelectorAll('.cmd-item').forEach(item => {
+                const keywords = item.getAttribute('data-key');
+                if(keywords.includes(val)) item.style.display = 'block';
+                else item.style.display = 'none';
+            });
+        }
+    </script>
+</body>
+</html>
